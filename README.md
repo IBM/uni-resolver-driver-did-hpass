@@ -234,14 +234,6 @@ cd universal-resolver/
 ## Push docker images to Docker hub
 
 ```
-docker tag hpass-did-driver:latest 
-ibmcom/uni-resolver-driver-did-hpass:latest
-(docker login -u jensjelitto)
-docker push ibmcom/uni-resolver-driver-did-hpass:latest
-```
-
-
-```
 docker build -f ./docker/Dockerfile . -t uni-resolver-driver-did-hpass
 docker tag uni-resolver-driver-did-hpass:latest ibmcom/uni-resolver-driver-did-hpass:1.0
 docker tag uni-resolver-driver-did-hpass:latest ibmcom/uni-resolver-driver-did-hpass:latest
