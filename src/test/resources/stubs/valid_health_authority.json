@@ -1,0 +1,24 @@
+{
+  "type": "health-authority",
+  "payload": {
+    "id": "did:hpass:aaaa172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d6aaaa",
+    "created": "2021-02-13T16:06:55Z",
+    "updated": "2021-02-13T16:06:55Z",
+    "@context": [
+      "https://www.w3.org/ns/did/v1"
+    ],
+    "publicKey": [
+      {
+        "id": "did:hpass:f18c172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d61678#key-1",
+        "type": "P-256",
+        "controller": "did:hpass:f18c172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d61678",
+        "publicKeyJwk": {
+          "crv": "P-256",
+          "kty": "EC",
+          "x": "afvXSTBvOIEDQ2DyRNNlI6cXf-b0-sdftMV8vgWGc_o",
+          "y": "OsGvVOFy12ENXovet217Fo4RG7v-uzWwKnk_IEmrcw0"
+        }
+      }
+    ]
+  }
+}

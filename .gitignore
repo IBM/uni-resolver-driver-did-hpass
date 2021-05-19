@@ -1,0 +1,10 @@
+.project
+.classpath
+/.settings/
+/target/
+/bin/
+docker-compose.override.yml
+/.idea/
+*.iml
+/.env
+/.env.dev
