@@ -16,6 +16,7 @@ package uniresolver.driver.did.hpass;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.loadbalancer.Server;
+import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.VerificationMethod;
 import org.slf4j.Logger;
@@ -136,26 +137,26 @@ public class DidHpassDriver implements Driver {
     }
 
     @Override
-    public ResolveResult resolve(String did) throws ResolutionException {
+    public ResolveResult resolve(DID did, Map<String, Object> resolutionOptions) throws ResolutionException {
 
-        checkIfIdentifierIsWellFormed(did);
+        checkIfIdentifierIsWellFormed(did.getDidString());
 
-        ServerEnvironment blockchainNetwork = retrieveNetworkServers(did);
+        ServerEnvironment blockchainNetwork = retrieveNetworkServers(did.getDidString());
 
-        JsonNode didBody = fetchDidFromBlockchainNetwork(blockchainNetwork, did);
+        JsonNode didBody = fetchDidFromBlockchainNetwork(blockchainNetwork, did.getDidString());
 
         JsonNode didPayload = getDidPayload(didBody);
 
         List<VerificationMethod> verificationMethods = getVerificationMethods(didPayload);
 
         DIDDocument didDocument = DIDDocument.builder()
-                .id(URI.create(did))
+                .id(URI.create(did.getDidString()))
                 .verificationMethods(verificationMethods)
                 .build();
 
         Map<String, Object> methodMetadata = getMethodMetadata(didPayload);
 
-        ResolveResult resolveResult = build(didDocument, null, DIDDocument.MIME_TYPE_JSON_LD, null, methodMetadata);
+        ResolveResult resolveResult = build(null, didDocument, null, methodMetadata);
 
         return resolveResult;
     }

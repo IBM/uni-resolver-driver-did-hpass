@@ -13,12 +13,11 @@
 
 package uniresolver.driver.did.hpass;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
+import foundation.identity.did.parser.ParserException;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uniresolver.ResolutionException;
@@ -52,7 +51,7 @@ public class HpassDriverWithoutRegistryTest extends BaseIntegrationTest {
   }
 
   @Test
-  void happyResolveDID() throws ResolutionException, JsonProcessingException {
+  void happyResolveDID() throws ResolutionException, ParserException {
     Integer statusCodeRegistry = 500;
     mockRegistryServer.enqueue(new MockResponse()
         .addHeader("Content-Type", "application/json; charset=utf-8")
@@ -75,9 +74,9 @@ public class HpassDriverWithoutRegistryTest extends BaseIntegrationTest {
     methodMetadata.put(DID_UPDATED, updated);
 
     DIDDocument did = new DIDDocument().fromJson(VALID_DID);
-    ResolveResult expected = ResolveResult.build(did, null, DIDDocument.MIME_TYPE_JSON_LD, null, methodMetadata);
+    ResolveResult expected = ResolveResult.build(null, did, null, methodMetadata);
 
-    ResolveResult result = didHpassDriver.resolve(id);
+    ResolveResult result = didHpassDriver.resolve(DID.fromString(id), null);
 
     assertEquals(expected.toJson(), result.toJson());
   }

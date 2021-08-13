@@ -124,6 +124,7 @@
 		<dependency>
 			<groupId>decentralized-identity</groupId>
 			<artifactId>uni-resolver-driver</artifactId>
+			<version>0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.cdimascio</groupId>

@@ -126,7 +126,7 @@ public class RestClientLoadBalancerTest {
     }
 
     @Test
-    public void failedMakeRequestNoValidServer() throws Exception {
+    public void failedMakeRequestNoValidServer() {
         Boolean staticServerList = true;
         ArrayList<Server> networkServerList = new ArrayList<>();
 
@@ -150,7 +150,7 @@ public class RestClientLoadBalancerTest {
     }
 
     @Test
-    public void failedMakeRequestInvalidServerPlusValidServerWithInvalidResponse() throws Exception {
+    public void failedMakeRequestInvalidServerPlusValidServerWithInvalidResponse() {
         Boolean staticServerList = true;
         ArrayList<Server> networkServerList = new ArrayList<>();
 

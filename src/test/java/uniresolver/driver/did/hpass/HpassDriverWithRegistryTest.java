@@ -13,9 +13,10 @@
 
 package uniresolver.driver.did.hpass;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
+import foundation.identity.did.parser.ParserException;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
     }
 
     @Test
-    void GoodPathResolve() throws ResolutionException, JsonProcessingException {
+    void GoodPathResolve() throws ResolutionException, ParserException {
         Integer statusCodeRegistry = 200;
         String bodyRegistry = validEnvironmentCollection;
         mockRegistryServer.enqueue(new MockResponse()
@@ -77,9 +78,9 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         methodMetadata.put(DID_UPDATED, updated);
 
         DIDDocument did = new DIDDocument().fromJson(VALID_DID);
-        ResolveResult expected = ResolveResult.build(did, null, DIDDocument.MIME_TYPE_JSON_LD, null, methodMetadata);
+        ResolveResult expected = ResolveResult.build(null, did, null, methodMetadata);
 
-        ResolveResult result = didHpassDriver.resolve(id);
+        ResolveResult result = didHpassDriver.resolve(DID.fromString(id), null);
 
         assertEquals(expected.toJson(), result.toJson());
     }
@@ -89,8 +90,8 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String id = "invalid_test_id";
         String expected = this.messageUtils.formatMessage("IDENTIFIER_IS_INVALID", id);
 
-        ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+        ParserException exception = assertThrows(ParserException.class, () -> {
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertEquals(expected, exception.getMessage());
@@ -111,7 +112,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String expected = this.messageUtils.formatMessage("COULD_NOT_RETRIEVE_SERVERS_FROM_REGISTRY_FOR_IDENTIFIER",id, "");
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
         System.out.println(mockRegistryServer.getDispatcher());
 
@@ -132,7 +133,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         expected = expected.substring(0, expected.lastIndexOf(":"));
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -151,7 +152,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String expected  = this.messageUtils.formatMessage("COULD_NOT_RETRIEVE_VALID_JSON_RESPONSE_FROM_BLOCKCHAIN_NETWORK", id);
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -170,7 +171,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String expected  = this.messageUtils.formatMessage("COULD_NOT_RETRIEVE_VALID_JSON_RESPONSE_FROM_BLOCKCHAIN_NETWORK", id);
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -189,7 +190,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String expected = this.messageUtils.formatMessage("COULD_NOT_RESOLVE_DID_NETWORK_URL_FROM_REGISTRY_RESPONSE", body);
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -211,7 +212,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         expected = expected.substring(0, expected.lastIndexOf(":"));
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -240,7 +241,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         expected = expected.substring(0, expected.indexOf(":"));
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -264,7 +265,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         String expected = this.messageUtils.formatMessage("DID_PAYLOAD_NOT_FOUND");
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -291,7 +292,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         expected = expected.substring(0, expected.lastIndexOf(":"));
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));
@@ -318,7 +319,7 @@ public class HpassDriverWithRegistryTest extends BaseIntegrationTest {
         expected = expected.substring(0, expected.lastIndexOf(":"));
 
         ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            didHpassDriver.resolve(id);
+            didHpassDriver.resolve(DID.fromString(id), null);
         });
 
         assertTrue(exception.getMessage().contains(expected));

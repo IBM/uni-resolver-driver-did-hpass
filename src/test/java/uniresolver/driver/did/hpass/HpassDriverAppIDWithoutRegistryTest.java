@@ -13,9 +13,10 @@
 
 package uniresolver.driver.did.hpass;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
+import foundation.identity.did.parser.ParserException;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
   }
 
   @Test
-  void happyResolveDID() throws ResolutionException, JsonProcessingException {
+  void happyResolveDID() throws ResolutionException, ParserException {
     Integer statusCodeRegistry = 500;
     mockRegistryServer.enqueue(new MockResponse()
         .addHeader("Content-Type", "application/json; charset=utf-8")
@@ -85,9 +86,9 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     methodMetadata.put(DID_UPDATED, updated);
 
     DIDDocument did = new DIDDocument().fromJson(VALID_DID);
-    ResolveResult expected = ResolveResult.build(did, null, DIDDocument.MIME_TYPE_JSON_LD, null, methodMetadata);
+    ResolveResult expected = ResolveResult.build(null, did, null, methodMetadata);
 
-    ResolveResult result = didHpassDriver.resolve(id);
+    ResolveResult result = didHpassDriver.resolve(DID.fromString(id), null);
 
     assertEquals(expected.toJson(), result.toJson());
   }
@@ -100,7 +101,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     String expected = messageUtils.formatMessage("VALUE_FOR_KEY_IS_NULL", UNIRESOLVER_DRIVER_PASSWORD);
 
     ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-      didHpassDriver.resolve(id);
+      didHpassDriver.resolve(DID.fromString(id), null);
     });
     assertTrue(exception.getMessage().contains(expected));
   }
@@ -113,7 +114,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     String expected = messageUtils.formatMessage("VALUE_FOR_KEY_IS_NULL", UNIRESOLVER_DRIVER_USER);
 
     ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-      didHpassDriver.resolve(id);
+      didHpassDriver.resolve(DID.fromString(id), null);
     });
     assertTrue(exception.getMessage().contains(expected));
   }
@@ -131,7 +132,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     String expected = messageUtils.formatMessage("COULD_NOT_RETRIEVE_VALID_HTTP_RESPONSE", url, statusCodeAppId);
 
     ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-      didHpassDriver.resolve(id);
+      didHpassDriver.resolve(DID.fromString(id), null);
     });
     assertTrue(exception.getMessage().contains(expected));
   }
@@ -148,7 +149,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     String expected = messageUtils.formatMessage("COULD_NOT_GET_RESPONSE", "invalid login data");
 
     ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-      didHpassDriver.resolve(id);
+      didHpassDriver.resolve(DID.fromString(id), null);
     });
     assertTrue(exception.getMessage().contains(expected));
   }
@@ -167,7 +168,7 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     String expected = messageUtils.formatMessage("COULD_NOT_GET_RESPONSE", "invalid login data");
 
     ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-      didHpassDriver.resolve(id);
+      didHpassDriver.resolve(DID.fromString(id), null);
     });
     assertTrue(exception.getMessage().contains(expected));
   }
