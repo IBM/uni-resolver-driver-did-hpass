@@ -14,6 +14,7 @@
 package uniresolver.driver.did.hpass.constants;
 
 public final class EnvironmentVariables {
+
   public static final String UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL = "UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL";
   public static final String UNIRESOLVER_DRIVER_DID_REGISTRY_URL = "UNIRESOLVER_DRIVER_DID_REGISTRY_URL";
   public static final String UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED = "UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED";

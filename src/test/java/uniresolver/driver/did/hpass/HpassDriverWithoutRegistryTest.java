@@ -13,27 +13,29 @@
 
 package uniresolver.driver.did.hpass;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_AUTH_ENABLED;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED;
+import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_CREATED;
+import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_UPDATED;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.parser.ParserException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uniresolver.ResolutionException;
 import uniresolver.result.ResolveResult;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.*;
-import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_CREATED;
-import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_UPDATED;
-
 public class HpassDriverWithoutRegistryTest extends BaseIntegrationTest {
+
   private DidHpassDriver didHpassDriver;
   private Map<String, Object> properties;
 
@@ -80,5 +82,4 @@ public class HpassDriverWithoutRegistryTest extends BaseIntegrationTest {
 
     assertEquals(expected.toJson(), result.toJson());
   }
-
 }

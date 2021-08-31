@@ -16,36 +16,35 @@ package uniresolver.driver.did.hpass.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uniresolver.ResolutionException;
 
-import java.net.http.HttpResponse;
-
 public class JSONUtils {
-    private ObjectMapper objectMapper;
-    private MessageUtils messageUtils;
 
+  private static final Logger log = LoggerFactory.getLogger(JSONUtils.class);
+  private final ObjectMapper objectMapper;
+  private final MessageUtils messageUtils;
 
-    public JSONUtils(ObjectMapper objectMapper,
-                     MessageUtils messageUtils) {
-        this.objectMapper = objectMapper;
-        this.messageUtils = messageUtils;
+  public JSONUtils(ObjectMapper objectMapper,
+      MessageUtils messageUtils) {
+    this.objectMapper = objectMapper;
+    this.messageUtils = messageUtils;
+  }
+
+  public JsonNode retrieveBodyAsJsonObject(HttpResponse<String> response) throws ResolutionException {
+    String responseString = response.body();
+    log.debug("HTTP request result: {}", responseString);
+
+    JsonNode responseJson = null;
+    try {
+      responseJson = this.objectMapper.readTree(responseString);
+    } catch (JsonProcessingException e) {
+      String message = this.messageUtils.formatMessage("COULD_NOT_EXTRACT_JSON_OBJECT_FROM_HTTP_RESPONSE", e.getMessage());
+      log.error(message);
+      throw new ResolutionException(message, e);
     }
-    private static Logger log = LoggerFactory.getLogger(JSONUtils.class);
-
-    public JsonNode retrieveBodyAsJsonObject(HttpResponse<String> response) throws ResolutionException {
-        String responseString = response.body();
-        log.debug("HTTP request result: {}", responseString);
-
-        JsonNode responseJson = null;
-        try {
-            responseJson = this.objectMapper.readTree(responseString);
-        } catch (JsonProcessingException e) {
-            String message = this.messageUtils.formatMessage("COULD_NOT_EXTRACT_JSON_OBJECT_FROM_HTTP_RESPONSE", e.getMessage());
-            log.error(message);
-            throw new ResolutionException(message, e);
-        }
-        return responseJson;
-    }
+    return responseJson;
+  }
 }

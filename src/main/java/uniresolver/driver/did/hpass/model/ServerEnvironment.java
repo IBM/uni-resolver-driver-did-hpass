@@ -15,35 +15,34 @@ package uniresolver.driver.did.hpass.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.loadbalancer.Server;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ServerEnvironment {
-    @JsonProperty("urlList")
-    private List<Server> urlList;
 
-    @JsonProperty("method")
-    private String method;
+  @JsonProperty("urlList")
+  private final List<Server> urlList;
 
-    @JsonProperty("isStatic")
-    private Boolean isStatic;
+  @JsonProperty("method")
+  private final String method;
 
-    public ServerEnvironment(List<Server> urlList, String method, Boolean isStatic) {
-        this.urlList = urlList;
-        this.method = method;
-        this.isStatic = isStatic;
-    }
+  @JsonProperty("isStatic")
+  private final Boolean isStatic;
 
-    public List<Server> getUrlList() {
-        return this.urlList;
-    }
+  public ServerEnvironment(List<Server> urlList, String method, Boolean isStatic) {
+    this.urlList = urlList;
+    this.method = method;
+    this.isStatic = isStatic;
+  }
 
-    public String getMethod() {
-        return this.method;
-    }
+  public List<Server> getUrlList() {
+    return this.urlList;
+  }
 
-    public Boolean isStatic() {
-        return this.isStatic;
-    }
+  public String getMethod() {
+    return this.method;
+  }
+
+  public Boolean isStatic() {
+    return this.isStatic;
+  }
 }

@@ -14,6 +14,7 @@
 package uniresolver.driver.did.hpass.constants;
 
 public final class RegistryKeys {
+
   public static final String REGISTRY_PAYLOAD = "payload";
   public static final String REGISTRY_ENVIRONMENTS = "environments";
   public static final String REGISTRY_METADATA = "metadata";

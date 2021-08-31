@@ -13,18 +13,20 @@
 
 package uniresolver.driver.did.hpass;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_REGISTRY_URL;
+
+import java.util.HashMap;
+import java.util.ResourceBundle;
 import org.junit.jupiter.api.Test;
 import uniresolver.ResolutionException;
 import uniresolver.driver.did.hpass.utils.MessageUtils;
 
-import java.util.HashMap;
-import java.util.ResourceBundle;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.*;
-
 public class HPassDriverPropertiesTest {
+
   public static ResourceBundle messageBundle = ResourceBundle.getBundle("Messages");
   public static MessageUtils messageUtils = new MessageUtils(messageBundle);
 
@@ -32,20 +34,16 @@ public class HPassDriverPropertiesTest {
   void happyEnvReadProperties() throws ResolutionException {
     DidHpassDriver didHpassDriver = new DidHpassDriver();
 
-    boolean propertiesOk = false;
-
-    if (didHpassDriver.properties().get(UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED).equals("true")
-            && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_REGISTRY_URL)) {
-      propertiesOk = true;
-    }
+    boolean propertiesOk = didHpassDriver.properties().get(UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED).equals("true")
+        && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_REGISTRY_URL);
 
     if (didHpassDriver.properties().get(UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED).equals("false")
-            && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL)) {
+        && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL)) {
       propertiesOk = true;
     }
 
     if (!didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED)
-            && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL)) {
+        && didHpassDriver.properties().containsKey(UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL)) {
       propertiesOk = true;
     }
 
@@ -57,9 +55,8 @@ public class HPassDriverPropertiesTest {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       new DidHpassDriver(new HashMap<>());
     });
-    String expected = messageUtils.formatMessage("VALUE_FOR_KEY_IS_NULL","");
+    String expected = messageUtils.formatMessage("VALUE_FOR_KEY_IS_NULL", "");
     expected = expected.substring(0, expected.lastIndexOf(":"));
     assertTrue(exception.getMessage().contains(expected));
-
   }
 }

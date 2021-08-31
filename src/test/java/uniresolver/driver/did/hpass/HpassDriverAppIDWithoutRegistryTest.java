@@ -13,26 +13,33 @@
 
 package uniresolver.driver.did.hpass;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_AUTH_ENABLED;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_AUTH_LOGIN_URL;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_HEALTH_NODE_URL;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_DID_REGISTRY_ENABLED;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_PASSWORD;
+import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.UNIRESOLVER_DRIVER_USER;
+import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_CREATED;
+import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_UPDATED;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import foundation.identity.did.DID;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.parser.ParserException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uniresolver.ResolutionException;
 import uniresolver.result.ResolveResult;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static uniresolver.driver.did.hpass.constants.EnvironmentVariables.*;
-import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_CREATED;
-import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_UPDATED;
-
 public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
+
   private DidHpassDriver didHpassDriver;
   private Map<String, Object> properties;
   private String bodyHpass;
@@ -72,9 +79,9 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     Integer statusCodeAppId = 200;
     bodyAppId = VALID_APPID_RESPONSE;
     mockAppIdServer.enqueue(new MockResponse()
-            .addHeader("Content-Type", "application/json; charset=utf-8")
-            .setBody(bodyAppId)
-            .setResponseCode(statusCodeAppId));
+        .addHeader("Content-Type", "application/json; charset=utf-8")
+        .setBody(bodyAppId)
+        .setResponseCode(statusCodeAppId));
 
     String id = "did:hpass:bbbb172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d6bbbb";
 
@@ -123,8 +130,8 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
   void FailedAuthenticateBadHttpStatusCode() {
     Integer statusCodeAppId = 500;
     mockAppIdServer.enqueue(new MockResponse()
-            .addHeader("Content-Type", "application/json; charset=utf-8")
-            .setResponseCode(statusCodeAppId));
+        .addHeader("Content-Type", "application/json; charset=utf-8")
+        .setResponseCode(statusCodeAppId));
 
     String id = "did:hpass:bbbb172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d6bbbb";
 
@@ -141,8 +148,8 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
   void FailedAuthenticateBadHttpResponse() {
     Integer statusCodeAppId = 200;
     mockAppIdServer.enqueue(new MockResponse()
-            .addHeader("Content-Type", "application/json; charset=utf-8")
-            .setResponseCode(statusCodeAppId));
+        .addHeader("Content-Type", "application/json; charset=utf-8")
+        .setResponseCode(statusCodeAppId));
 
     String id = "did:hpass:bbbb172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d6bbbb";
 
@@ -159,9 +166,9 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     Integer statusCodeAppId = 200;
     bodyAppId = INVALID_APPID_RESPONSE_NO_ACCESS_TOKEN;
     mockAppIdServer.enqueue(new MockResponse()
-            .addHeader("Content-Type", "application/json; charset=utf-8")
-            .setBody(bodyAppId)
-            .setResponseCode(statusCodeAppId));
+        .addHeader("Content-Type", "application/json; charset=utf-8")
+        .setBody(bodyAppId)
+        .setResponseCode(statusCodeAppId));
 
     String id = "did:hpass:bbbb172ac3622332beacdd2089ddd20a82ae90c32b4b81515237245c9683e6dd:f176010ec01d4eaf04ac49c54b568358e4a17a0d4e5a0f8eb7cfe17797d6bbbb";
 

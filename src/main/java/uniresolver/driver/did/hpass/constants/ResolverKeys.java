@@ -14,6 +14,7 @@
 package uniresolver.driver.did.hpass.constants;
 
 public final class ResolverKeys {
+
   public static final String DID_HEALTH_NODE_URL = "didHealthNodeUrl";
 
   public static final String DID_PUBLIC_KEY = "publicKey";
@@ -27,5 +28,4 @@ public final class ResolverKeys {
 
   public static final String DID_P_256 = "P-256";
   public static final String DID_JSON_WEB_KEY_2020 = "JsonWebKey2020";
-
 }

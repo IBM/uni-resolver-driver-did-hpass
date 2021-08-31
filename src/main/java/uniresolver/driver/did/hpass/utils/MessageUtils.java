@@ -17,38 +17,39 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 public class MessageUtils {
-    private ResourceBundle resourceBundle;
 
-    public MessageUtils(ResourceBundle resourceBundle) {
-        this.resourceBundle = resourceBundle;
-    }
+  private final ResourceBundle resourceBundle;
 
-    public String getMessageString(String messageKey) {
-        return this.resourceBundle.getString(messageKey);
-    }
+  public MessageUtils(ResourceBundle resourceBundle) {
+    this.resourceBundle = resourceBundle;
+  }
 
-    public String formatMessage(String messageKey) {
-        MessageFormat mf = new MessageFormat(getMessageString(messageKey));
-        return mf.format(new Object[0]);
-    }
+  public String getMessageString(String messageKey) {
+    return this.resourceBundle.getString(messageKey);
+  }
 
-    public String formatMessage(String messageKey,
-                                Object arg0) {
-        MessageFormat mf = new MessageFormat(getMessageString(messageKey));
-        Object[] args = new Object[1];
-        args[0] = arg0;
-        return mf.format(args);
-    }
+  public String formatMessage(String messageKey) {
+    MessageFormat mf = new MessageFormat(getMessageString(messageKey));
+    return mf.format(new Object[0]);
+  }
 
-    public String formatMessage(String messageKey,
-                                Object arg0,
-                                Object arg1) {
-        MessageFormat mf = new MessageFormat(getMessageString(messageKey));
-        Object[] args = new Object[2];
-        args[0] = arg0;
-        args[1] = arg1;
-        return mf.format(args);
-    }
-    // Include implementations of formatMessage() for as many arguments
-    // as you need
+  public String formatMessage(String messageKey,
+      Object arg0) {
+    MessageFormat mf = new MessageFormat(getMessageString(messageKey));
+    Object[] args = new Object[1];
+    args[0] = arg0;
+    return mf.format(args);
+  }
+
+  public String formatMessage(String messageKey,
+      Object arg0,
+      Object arg1) {
+    MessageFormat mf = new MessageFormat(getMessageString(messageKey));
+    Object[] args = new Object[2];
+    args[0] = arg0;
+    args[1] = arg1;
+    return mf.format(args);
+  }
+  // Include implementations of formatMessage() for as many arguments
+  // as you need
 }

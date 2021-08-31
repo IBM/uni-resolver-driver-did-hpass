@@ -13,32 +13,28 @@
 
 package uniresolver.driver.did.hpass;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.util.ResourceBundle;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import uniresolver.driver.did.hpass.utils.MessageUtils;
 
-import java.io.IOException;
-import java.util.ResourceBundle;
-
-import static java.util.Objects.requireNonNull;
-
 public abstract class BaseIntegrationTest {
-  protected static ObjectMapper objectMapper;
 
   public static MockWebServer mockRegistryServer;
   public static MockWebServer mockHpassServer;
   public static MockWebServer mockAppIdServer;
-
   public static ResourceBundle messageBundle;
   public static MessageUtils messageUtils;
-
+  protected static ObjectMapper objectMapper;
   protected static String VALID_ENVIRONMENT_COLLECTION;
   protected static String VALID_ENVIRONMENT_COLLECTION_TYPE2;
   protected static String VALID_ENVIRONMENT_COLLECTION_METHOD_SET;
@@ -56,26 +52,8 @@ public abstract class BaseIntegrationTest {
   protected static String VALID_APPID_RESPONSE;
   protected static String INVALID_APPID_RESPONSE_NO_ACCESS_TOKEN;
 
-  @BeforeEach
-  void setUpServers() throws IOException {
-    mockRegistryServer = new MockWebServer();
-    mockRegistryServer.start();
-    mockHpassServer = new MockWebServer();
-    mockHpassServer.start();
-    mockAppIdServer = new MockWebServer();
-    mockAppIdServer.start();
-    objectMapper = new ObjectMapper();
-
-    String baseHpassUrl = String.format("http://%s:%s", mockHpassServer.getHostName(), mockHpassServer.getPort());
-
-    validEnvironmentCollection = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION, baseHpassUrl).toString();
-    validEnvironmentCollectionType2 = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION_TYPE2, baseHpassUrl).toString();
-    validEnvironmentCollectionMethodSet = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION_METHOD_SET, baseHpassUrl).toString();
-    invalidEnvironmentCollection = createEnvironmentCollectionJson(INVALID_ENVIRONMENT_COLLECTION, baseHpassUrl).toString();
-  }
-
-    @BeforeAll
-   static void setUp() throws IOException {
+  @BeforeAll
+  static void setUp() throws IOException {
 
     messageBundle = ResourceBundle.getBundle("Messages");
     messageUtils = new MessageUtils(messageBundle);
@@ -121,21 +99,14 @@ public abstract class BaseIntegrationTest {
         .readAllBytes());
 
     VALID_APPID_RESPONSE = new String(requireNonNull(HpassDriverWithRegistryTest.class
-            .getClassLoader()
-            .getResourceAsStream("stubs/valid_appid_response.json"))
-            .readAllBytes());
+        .getClassLoader()
+        .getResourceAsStream("stubs/valid_appid_response.json"))
+        .readAllBytes());
 
     INVALID_APPID_RESPONSE_NO_ACCESS_TOKEN = new String(requireNonNull(HpassDriverWithRegistryTest.class
-            .getClassLoader()
-            .getResourceAsStream("stubs/invalid_appid_response_no_accesstoken.json"))
-            .readAllBytes());
-  }
-
-  @AfterEach
-   void tearDown() throws Exception {
-    mockRegistryServer.shutdown();
-    mockHpassServer.shutdown();
-    mockAppIdServer.shutdown();
+        .getClassLoader()
+        .getResourceAsStream("stubs/invalid_appid_response_no_accesstoken.json"))
+        .readAllBytes());
   }
 
   protected static JsonNode createEnvironmentCollectionJson(String environment, String baseHpassUrl) {
@@ -154,11 +125,36 @@ public abstract class BaseIntegrationTest {
   protected static JsonNode createJsonNode(String jsonString) {
     JsonNode jsonNode = null;
     try {
-      jsonNode = (ObjectNode) objectMapper.readTree(jsonString);
+      jsonNode = objectMapper.readTree(jsonString);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
     return jsonNode;
+  }
+
+  @BeforeEach
+  void setUpServers() throws IOException {
+    mockRegistryServer = new MockWebServer();
+    mockRegistryServer.start();
+    mockHpassServer = new MockWebServer();
+    mockHpassServer.start();
+    mockAppIdServer = new MockWebServer();
+    mockAppIdServer.start();
+    objectMapper = new ObjectMapper();
+
+    String baseHpassUrl = String.format("http://%s:%s", mockHpassServer.getHostName(), mockHpassServer.getPort());
+
+    validEnvironmentCollection = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION, baseHpassUrl).toString();
+    validEnvironmentCollectionType2 = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION_TYPE2, baseHpassUrl).toString();
+    validEnvironmentCollectionMethodSet = createEnvironmentCollectionJson(VALID_ENVIRONMENT_COLLECTION_METHOD_SET, baseHpassUrl).toString();
+    invalidEnvironmentCollection = createEnvironmentCollectionJson(INVALID_ENVIRONMENT_COLLECTION, baseHpassUrl).toString();
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    mockRegistryServer.shutdown();
+    mockHpassServer.shutdown();
+    mockAppIdServer.shutdown();
   }
 }

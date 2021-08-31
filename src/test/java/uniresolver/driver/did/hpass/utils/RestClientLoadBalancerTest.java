@@ -13,180 +13,181 @@
 
 package uniresolver.driver.did.hpass.utils;
 
-import com.netflix.loadbalancer.Server;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.*;
-import uniresolver.ResolutionException;
-import uniresolver.driver.did.hpass.model.ServerEnvironment;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uniresolver.driver.did.hpass.constants.RegistryKeys.REGISTRY_METHOD_GET;
 
+import com.netflix.loadbalancer.Server;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uniresolver.driver.did.hpass.constants.RegistryKeys.REGISTRY_METHOD_GET;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uniresolver.ResolutionException;
+import uniresolver.driver.did.hpass.model.ServerEnvironment;
 
 public class RestClientLoadBalancerTest {
-    public static ResourceBundle messageBundle = ResourceBundle.getBundle("Messages");
-    public static MessageUtils messageUtils = new MessageUtils(messageBundle);
-    public static HttpClient httpClient = HttpClient.newHttpClient();
-    public static MockWebServer mockServer;
 
-    @BeforeEach
-    void setUp() throws IOException {
-        mockServer = new MockWebServer();
-        mockServer.start();
+  public static ResourceBundle messageBundle = ResourceBundle.getBundle("Messages");
+  public static MessageUtils messageUtils = new MessageUtils(messageBundle);
+  public static HttpClient httpClient = HttpClient.newHttpClient();
+  public static MockWebServer mockServer;
+
+  @BeforeEach
+  void setUp() throws IOException {
+    mockServer = new MockWebServer();
+    mockServer.start();
+  }
+
+  @Test
+  public void happyMakeRequest() throws Exception {
+    Boolean staticServerList = true;
+    ArrayList<Server> networkServerList = new ArrayList<>();
+
+    Integer statusCode = 200;
+    String body = "someBody";
+    mockServer.enqueue(new MockResponse()
+        .addHeader("Content-Type", "application/json; charset=utf-8")
+        .setBody(body)
+        .setResponseCode(statusCode));
+
+    String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
+    String urlServer2 = "https://incorrectServer:200";
+
+    networkServerList.add(new Server(urlServer1, 1));
+    networkServerList.add(new Server(urlServer2, 2));
+
+    ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
+    RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(httpClient, messageUtils, serverEnvironment.getUrlList());
+    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
+
+    String networkID = "identifier1";
+    String parameters = "?network_id=" + networkID;
+
+    HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
+
+    Integer actual = httpResponse.statusCode();
+    Integer expected = statusCode;
+
+    assertTrue(actual.equals(expected));
+    assertTrue(httpResponse.body().equals(body));
+  }
+
+  @Test
+  public void happyMakeRequestAfterRetries() throws Exception {
+    Boolean staticServerList = true;
+    ArrayList<Server> networkServerList = new ArrayList<>();
+
+    Integer statusCode = 400;
+    String body = "badBody";
+    for (int i = 0; i < 5; i++) {
+      mockServer.enqueue(new MockResponse()
+          .addHeader("Content-Type", "application/json; charset=utf-8")
+          .setBody(body + i)
+          .setResponseCode(statusCode));
     }
 
-    @Test
-    public void happyMakeRequest() throws Exception {
-        Boolean staticServerList = true;
-        ArrayList<Server> networkServerList = new ArrayList<>();
+    statusCode = 200;
+    body = "goodBody";
 
-        Integer statusCode = 200;
-        String body = "someBody";
-        mockServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json; charset=utf-8")
-                .setBody(body)
-                .setResponseCode(statusCode));
-
-        String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
-        String urlServer2 = "https://incorrectServer:200";
-
-        networkServerList.add(new Server(urlServer1, 1));
-        networkServerList.add(new Server(urlServer2, 2));
-
-        ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
-        RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(this.httpClient, this.messageUtils, serverEnvironment.getUrlList());
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
-
-        String networkID = "identifier1";
-        String parameters = "?network_id=" + networkID;
-
-        HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
-
-        Integer actual = httpResponse.statusCode();
-        Integer expected = statusCode;
-
-        assertTrue(actual.equals(expected));
-        assertTrue(httpResponse.body().equals(body));
+    for (int i = 0; i < 5; i++) {
+      mockServer.enqueue(new MockResponse()
+          .addHeader("Content-Type", "application/json; charset=utf-8")
+          .setBody(body + i)
+          .setResponseCode(statusCode));
     }
 
-    @Test
-    public void happyMakeRequestAfterRetries() throws Exception {
-        Boolean staticServerList = true;
-        ArrayList<Server> networkServerList = new ArrayList<>();
+    String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
+    String urlServer2 = "https://incorrectServer:200";
 
-        Integer statusCode = 400;
-        String body = "badBody";
-        for (int i = 0; i < 5; i++) {
-            mockServer.enqueue(new MockResponse()
-                    .addHeader("Content-Type", "application/json; charset=utf-8")
-                    .setBody(body + String.valueOf(i))
-                    .setResponseCode(statusCode));
-        }
+    networkServerList.add(new Server(urlServer1, 1));
+    networkServerList.add(new Server(urlServer2, 2));
 
-        statusCode = 200;
-        body = "goodBody";
+    ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
+    RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(httpClient, messageUtils, serverEnvironment.getUrlList());
+    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
 
-        for (int i = 0; i < 5; i++) {
-            mockServer.enqueue(new MockResponse()
-                    .addHeader("Content-Type", "application/json; charset=utf-8")
-                    .setBody(body + String.valueOf(i))
-                    .setResponseCode(statusCode));
-        }
+    String networkID = "identifier1";
+    String parameters = "?network_id=" + networkID;
 
-        String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
-        String urlServer2 = "https://incorrectServer:200";
+    HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
 
-        networkServerList.add(new Server(urlServer1, 1));
-        networkServerList.add(new Server(urlServer2, 2));
+    Integer actual = httpResponse.statusCode();
+    Integer expected = statusCode;
 
-        ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
-        RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(this.httpClient, this.messageUtils, serverEnvironment.getUrlList());
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
+    assertTrue(actual.equals(expected));
+    assertTrue(httpResponse.body().equals("goodBody0"));
 
-        String networkID = "identifier1";
-        String parameters = "?network_id=" + networkID;
+    System.out.println(loadBalancer.getLoadBalancerStats().getServerStats());
+  }
 
-        HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
+  @Test
+  public void failedMakeRequestNoValidServer() {
+    Boolean staticServerList = true;
+    ArrayList<Server> networkServerList = new ArrayList<>();
 
-        Integer actual = httpResponse.statusCode();
-        Integer expected = statusCode;
+    String urlServer1 = "https://incorrectServer1:100";
+    String urlServer2 = "https://incorrectServer2:200";
 
-        assertTrue(actual.equals(expected));
-        assertTrue(httpResponse.body().equals("goodBody0"));
+    networkServerList.add(new Server(urlServer1, 1));
+    networkServerList.add(new Server(urlServer2, 2));
 
-        System.out.println(loadBalancer.getLoadBalancerStats().getServerStats());
+    ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
+    RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(httpClient, messageUtils, serverEnvironment.getUrlList());
+    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
+
+    String networkID = "identifier1";
+    String parameters = "?network_id=" + networkID;
+
+    ResolutionException exception = assertThrows(ResolutionException.class, () -> {
+      HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
+    });
+    assertTrue(exception.getMessage().contains("Number of retries on next server exceeded max 10 retries"));
+  }
+
+  @Test
+  public void failedMakeRequestInvalidServerPlusValidServerWithInvalidResponse() {
+    Boolean staticServerList = true;
+    ArrayList<Server> networkServerList = new ArrayList<>();
+
+    Integer statusCode = 400;
+    String body = "someBody";
+
+    // put at least as many requests into the queue as the retry limit
+    for (int i = 0; i < 10; i++) {
+      mockServer.enqueue(new MockResponse()
+          .addHeader("Content-Type", "application/json; charset=utf-8")
+          .setBody(body + i)
+          .setResponseCode(statusCode));
     }
 
-    @Test
-    public void failedMakeRequestNoValidServer() {
-        Boolean staticServerList = true;
-        ArrayList<Server> networkServerList = new ArrayList<>();
+    String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
+    String urlServer2 = "https://incorrectServer:200";
 
-        String urlServer1 = "https://incorrectServer1:100";
-        String urlServer2 = "https://incorrectServer2:200";
+    networkServerList.add(new Server(urlServer1, 1));
+    networkServerList.add(new Server(urlServer2, 2));
 
-        networkServerList.add(new Server(urlServer1, 1));
-        networkServerList.add(new Server(urlServer2, 2));
+    ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
+    RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(httpClient, messageUtils, serverEnvironment.getUrlList());
+    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
 
-        ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
-        RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(this.httpClient, this.messageUtils, serverEnvironment.getUrlList());
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
+    String networkID = "identifier1";
+    String parameters = "?network_id=" + networkID;
 
-        String networkID = "identifier1";
-        String parameters = "?network_id=" + networkID;
+    ResolutionException exception = assertThrows(ResolutionException.class, () -> {
+      HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
+    });
+    assertTrue(exception.getMessage().contains("Number of retries on next server exceeded max 10 retries"));
+  }
 
-        ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
-        });
-        assertTrue(exception.getMessage().contains("Number of retries on next server exceeded max 10 retries"));
-    }
-
-    @Test
-    public void failedMakeRequestInvalidServerPlusValidServerWithInvalidResponse() {
-        Boolean staticServerList = true;
-        ArrayList<Server> networkServerList = new ArrayList<>();
-
-        Integer statusCode = 400;
-        String body = "someBody";
-
-        // put at least as many requests into the queue as the retry limit
-        for (int i = 0; i < 10; i++) {
-            mockServer.enqueue(new MockResponse()
-                    .addHeader("Content-Type", "application/json; charset=utf-8")
-                    .setBody(body + String.valueOf(i))
-                    .setResponseCode(statusCode));
-        }
-
-        String urlServer1 = String.format("http://%s:%s/", mockServer.getHostName(), mockServer.getPort());
-        String urlServer2 = "https://incorrectServer:200";
-
-        networkServerList.add(new Server(urlServer1, 1));
-        networkServerList.add(new Server(urlServer2, 2));
-
-        ServerEnvironment serverEnvironment = new ServerEnvironment(networkServerList, REGISTRY_METHOD_GET, staticServerList);
-        RestClientLoadBalancer loadBalancer = new RestClientLoadBalancer(this.httpClient, this.messageUtils, serverEnvironment.getUrlList());
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
-
-        String networkID = "identifier1";
-        String parameters = "?network_id=" + networkID;
-
-        ResolutionException exception = assertThrows(ResolutionException.class, () -> {
-            HttpResponse<String> httpResponse = loadBalancer.makeRequestWithRetry(requestBuilder, parameters);
-        });
-        assertTrue(exception.getMessage().contains("Number of retries on next server exceeded max 10 retries"));
-
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        mockServer.shutdown();
-    }
+  @AfterEach
+  void tearDown() throws Exception {
+    mockServer.shutdown();
+  }
 }
