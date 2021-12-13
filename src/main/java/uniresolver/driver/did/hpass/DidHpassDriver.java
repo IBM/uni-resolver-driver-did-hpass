@@ -34,7 +34,6 @@ import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_PUBLIC_KEY
 import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_P_256;
 import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_TYPE;
 import static uniresolver.driver.did.hpass.constants.ResolverKeys.DID_UPDATED;
-import static uniresolver.result.ResolveResult.build;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,7 +63,7 @@ import uniresolver.driver.did.hpass.utils.JSONUtils;
 import uniresolver.driver.did.hpass.utils.MessageUtils;
 import uniresolver.driver.did.hpass.utils.PropertyUtils;
 import uniresolver.driver.did.hpass.utils.RestClientLoadBalancer;
-import uniresolver.result.ResolveResult;
+import uniresolver.result.ResolveDataModelResult;
 
 public class DidHpassDriver implements Driver {
 
@@ -158,7 +157,7 @@ public class DidHpassDriver implements Driver {
   }
 
   @Override
-  public ResolveResult resolve(DID did, Map<String, Object> resolutionOptions) throws ResolutionException {
+  public ResolveDataModelResult resolve(DID did, Map<String, Object> resolutionOptions) throws ResolutionException {
 
     checkIfIdentifierIsWellFormed(did.getDidString());
 
@@ -175,9 +174,9 @@ public class DidHpassDriver implements Driver {
         .verificationMethods(verificationMethods)
         .build();
 
-    Map<String, Object> methodMetadata = getMethodMetadata(didPayload);
+    Map<String, Object> didDocumentMetadata = getDidDocumentMetadata(didPayload);
 
-    ResolveResult resolveResult = build(null, didDocument, null, methodMetadata);
+    ResolveDataModelResult resolveResult = ResolveDataModelResult.build(null, didDocument,  didDocumentMetadata);
 
     return resolveResult;
   }
@@ -400,7 +399,7 @@ public class DidHpassDriver implements Driver {
     return DID_DATE_TIME_PATTERN.matcher(value).matches();
   }
 
-  private Map<String, Object> getMethodMetadata(JsonNode didPayload) {
+  private Map<String, Object> getDidDocumentMetadata(JsonNode didPayload) {
     Map<String, Object> methodMetadata = new LinkedHashMap<String, Object>();
 
     // created/updated dateTime be a string formatted as an XML Datetime normalized to UTC 00:00:00 and without sub-second decimal precision. For example: 2020-12-20T19:17:47Z.

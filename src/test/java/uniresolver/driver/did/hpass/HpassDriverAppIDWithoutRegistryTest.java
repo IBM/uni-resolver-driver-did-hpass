@@ -36,6 +36,7 @@ import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uniresolver.ResolutionException;
+import uniresolver.result.ResolveDataModelResult;
 import uniresolver.result.ResolveResult;
 
 public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
@@ -88,14 +89,14 @@ public class HpassDriverAppIDWithoutRegistryTest extends BaseIntegrationTest {
     JsonNode datesJson = createJsonNode(VALID_HEALTH_AUTHORITY);
     String created = datesJson.get("payload").get("created").textValue();
     String updated = datesJson.get("payload").get("updated").textValue();
-    Map<String, Object> methodMetadata = new LinkedHashMap<>();
-    methodMetadata.put(DID_CREATED, created);
-    methodMetadata.put(DID_UPDATED, updated);
+    Map<String, Object> didDocumentMetadata = new LinkedHashMap<>();
+    didDocumentMetadata.put(DID_CREATED, created);
+    didDocumentMetadata.put(DID_UPDATED, updated);
 
     DIDDocument did = new DIDDocument().fromJson(VALID_DID);
-    ResolveResult expected = ResolveResult.build(null, did, null, methodMetadata);
+    ResolveDataModelResult expected = ResolveDataModelResult.build(null, did, didDocumentMetadata);
 
-    ResolveResult result = didHpassDriver.resolve(DID.fromString(id), null);
+    ResolveDataModelResult result = didHpassDriver.resolve(DID.fromString(id), null);
 
     assertEquals(expected.toJson(), result.toJson());
   }
